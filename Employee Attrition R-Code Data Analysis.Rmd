@@ -1,0 +1,351 @@
+---
+title: "Mid-Term Data Analysis Project: Employee Attrition"
+author: "Harshil Saini"
+date: "03/20/2023"
+output: word_document
+---
+
+
+## 1. Introduction. 
+
+For this company report, we have gathered data from our human resources team to determine the leading factors of employee attrition within our company. We have gathered data of employees in our company such as whether they have left the company, department in which they work in, job level of their current occupation, salary, weekly hours, business travel, years at the company, years since promotion, previous companies, job satisfaction, performance, marital status, and distance from home to see if these factors have any correlation to the employee attrition data we have acquired. After carefully analyzing the data, we had received from the Human Resources team, we have decided to focus on six main factors that may influence attrition at our company. The six factors are job satisfaction, salary, weekly hours, number of previous companies, years at our company, and distance of commute. 
+
+After carefully analyzing the data, we had found that the three factors that most contributed to employees leaving the company were salary distribution, number of companies worked for previously, and years served at the organization among employees. Research shows that factors such as job satisfaction, weekly hours worked, and commuting distance did not have a strong enough correlation in the data to draw conclusions about our attrition rates. Generally, employees that made less money yearly, have previously worked for many different companies, or have been with the company for less time were more likely to leave our company. For the remainder of this report, we will cover the data and model section of our chosen factors, the conclusions drawn from our data, and the appendices/data visualization that allowed us to draw the conclusions about our problem of attrition rates in our organization.
+
+
+## 2. Data and Model
+
+As mentioned in the introductory portion of the company report, we will be analyzing data regarding job satisfaction, salary, weekly hours, number of previous companies, years at our company, and distance of commute of the employees at our company to determine whether any of the listed factors have any correlation to the number of employees our company is losing. Here are our big questions as follows:
+
+1. Is there a relationship between employees leaving the company and their job satisfaction?
+
+```{r include=FALSE, message=FALSE,warning=FALSE }
+library(tidyverse)
+employee_data <- read_csv('EmployeeData.csv')
+```
+
+```{r echo = FALSE}
+employee_data <- employee_data %>% add_column(job_satisfaction2 = employee_data$job_satisfaction)
+employee_data[employee_data$job_satisfaction2 == "Low",]$job_satisfaction2 = "1"
+employee_data[employee_data$job_satisfaction2 == "Medium",]$job_satisfaction2 = "2"
+employee_data[employee_data$job_satisfaction2 == "High",]$job_satisfaction2 = "3"
+employee_data[employee_data$job_satisfaction2 == "Very High",]$job_satisfaction2 = "4"
+
+employee_data$job_satisfaction2 <- as.numeric(employee_data$job_satisfaction2)
+
+employee_data %>% group_by(left_company) %>%
+  summarise(n_employees = n(),
+  min_job_satisfaction = min(job_satisfaction2),
+  avg_job_satisfaction = mean(job_satisfaction2),
+  max_job_satisfaction = max(job_satisfaction2),
+  sd_job_satisfaction = sd(job_satisfaction2),
+  pct_less_medium_satisfaction = mean(job_satisfaction2 <= 2))
+
+#bar chart
+ggplot(data = employee_data, aes(x = job_satisfaction, fill = left_company)) +
+geom_bar(color = "white") +
+facet_wrap(~ left_company, nrow = 2) +
+labs(title = "Job Satisfaction by Status (Left the Company - Yes/No)",
+x = "Job Satisfaction Levels", y = "Number of Employees")
+
+```
+
+
+Answer: Yes, the data does make a slight indication that there are more employees that leave the company who have lower job satisfaction than those that have higher job satisfaction. Our data suggests that job satisfaction among employees that had stayed was averaged to be 2.78/4 (~70% satisfied with their job). According to our data, job satisfaction among employees who had left our organization was slightly lower at 2.47/4 (~62% satisfied with their job). In summary, data suggests that employees who had left the company were ~8% less satisfied with their jobs on average. 
+
+2. Is there a relationship between employees leaving the company and their annual salary?
+
+```{r echo = FALSE}
+employee_data %>% group_by(left_company) %>%
+  summarise(n_employees = n(),
+            min_salary = min(salary),
+            avg_salary = mean(salary),
+            max_salary = max(salary),
+            sd_salary = sd(salary),
+            pct_less_60k = mean(salary <= 60000))
+
+
+#histogram
+ggplot(data = employee_data, aes(x = salary, fill = left_company)) +
+geom_histogram(aes(y = ..density..), color = "white", bins = 20) +
+facet_wrap(~ left_company, nrow = 2) +
+labs(title = "Employee Salary Distribution by Status (Left the Comapny - Yes/No)",
+x = "Salary (US Dollars)", y = "Proportion of Employees")
+
+
+```
+
+Answer: Yes, the data does make a strong indication that there are more employees that leave the company who make less annual salary than those that make more salary annually. Our data suggests that annual salary among employees that had stayed was averaged to be ~$97,430 annually while employees that chose to leave had an average salary of ~$76,625 annually. That is ~27% difference in annual salary between averages. In summary, due to the large difference in averages, it is safe to conclude that on average, employees making less salary annually are more likely to leave the company than those that make more. 
+
+3. Is there a relationship between employees leaving the company and the number of hours worked weekly?
+
+```{r echo = FALSE}
+
+employee_data %>% group_by(left_company) %>%
+  summarise(n_employees = n(),
+  min_weekly_hours = min(weekly_hours),
+  avg_weekly_hours = mean(weekly_hours),
+  max_weekly_hours = max(weekly_hours),
+  sd_weekly_hours = sd(weekly_hours),
+  pct_less_55_hours = mean(weekly_hours <= 55))
+
+#bar chart
+ggplot(data = employee_data, aes(x = weekly_hours, fill = left_company)) +
+geom_histogram(aes(y = ..density..), color = "white", bins = 20) +
+facet_wrap(~ left_company, nrow = 2) +
+labs(title = "Weekly Hours Distribution by Status (Left the Comapny - Yes/No)",
+x = "Time (hours)", y = "Proportion of Employees")
+
+```
+Answer: Yes, the data does make a slight indication that there are more employees that leave the company who overwork than those that work less hours on a weekly basis. Our data suggests that weekly hours worked among employees that had stayed was averaged to be ~48 hours a week while those that had left the company were averaging ~59 hours per week. Again, that is ~23% increase in hours from those who did not leave the company. In summary, the average hours worked weekly by those who left the company as compared to those who stayed in the company indicates that there is a higher chance of employees leaving if overworked. 
+
+4. Is there a relationship between employees leaving the company and the number of previous companies they worked for?
+
+```{r echo = FALSE}
+
+employee_data %>% group_by(left_company) %>%
+  summarise(n_employees = n(),
+  min_previous_companies = min(previous_companies),
+  avg_previous_companies = mean(previous_companies),
+  max_previous_companies = max(previous_companies),
+  sd_previous_companies = sd(previous_companies),
+  pct_less_4_companies = mean(previous_companies <= 4))
+
+#boxplot
+ggplot(employee_data, aes(x = previous_companies, fill = left_company)) +
+  geom_boxplot()+
+facet_wrap(~ left_company, nrow = 2)  +
+labs(title = "Previous Companies by Status (Left the Company - Yes/No)",
+x = "Number of Companies")
+
+```
+
+Answer: Yes, the data does make a strong indication that employees are more likely to leave the company if they have also worked for many other companies previously. Our data suggests that companies worked for among employees that had stayed was averaged to be ~2.97 previous companies while number of previous companies of employees that had left averaged at ~4.65. In other words, employees that left our company saw ~57% increase in number of companies worked for previously than those who had stayed. These observations allowed our team to conclude that employees that have worked for more than three companies previously were more likely to leave our organization. 
+
+5. Is there a relationship between employees leaving the company and the number of years served at our organization?
+
+```{r echo = FALSE}
+
+employee_data %>% group_by(left_company) %>%
+  summarise(n_employees = n(),
+  min_yrs_at_company = min(yrs_at_company),
+  avg_yrs_at_company = mean(yrs_at_company),
+  max_yrs_at_company = max(yrs_at_company),
+  sd_yrs_at_companys = sd(yrs_at_company),
+  pct_less_15_years = mean(yrs_at_company <= 20))
+
+#boxplot
+ggplot(employee_data, aes(x = yrs_at_company, fill = left_company)) +
+  geom_boxplot()+
+facet_wrap(~ left_company, nrow = 2)  +
+labs(title = "Number of Years at Company by Status (Left the Company - Yes/No)",
+x = "Number of Years at Company")
+
+```
+
+
+Answer: Yes, the data does make a strong indication that there are more employees that leave the company who have stayed with the company for less time than those who have stayed for longer. Our data suggests that length of service among employees that had stayed was averaged to be ~7.37 years while average years served at the company decreased by ~30% to ~5.13 years served at the company. This portion of our data indicated that the longer employees worked for our company, the more likely they were to stay with the company. 
+
+6. Does the commute distance for employees at our company have any correlation to the number of employees lost at our organization?
+
+```{r echo = FALSE}
+employee_data %>% group_by(left_company) %>%
+  summarise(n_employees = n(),
+  min_miles_from_home = min(miles_from_home),
+  avg_miles_from_home = mean(miles_from_home),
+  max_miles_from_home = max(miles_from_home),
+  sd_miles_from_home = sd(miles_from_home),
+  pct_less_15_miles = mean(miles_from_home <= 15))
+
+
+#histogram
+ggplot(data = employee_data, aes(x = miles_from_home, fill = left_company)) +
+geom_histogram(aes(y = ..density..), color = "white", bins = 20) +
+facet_wrap(~ left_company, nrow = 2) +
+labs(title = "Employee Commute Distance by Status (Left the Comapny - Yes/No)",
+x = "Distance (Miles)", y = "Proportion of Employees")
+
+
+```
+
+Answer: Yes, the data does make a slight indication that there are more employees that leave the company who must commute further rather than those who have a closer commute. Our data suggests that the average commute in miles for employees that have stayed with our company is ~8.92 while the average for people that have left the company was ~10.63 miles. That is ~19% increase in distance of commute on average. In summary, employees are more likely to stay if their commute distance is shorter. 
+
+
+## 3.	Conclusion(s)/Discussion. 
+
+For the organizational report, we have explored the topics of employee attrition at our company and have done analysis on many different factors to determine if these factors have an influence on the company’s ability to retain employees. In this report, we have explored the factors of job satisfaction, salary, weekly hours, number of previous companies, years at our company, and distance of commute of the employees at our company. As shown from our analysis and the data we have acquired from our Human Resources team, our study found that employees earning less money annually, employees that have worked for more companies previously, and employees that have worked for our company for a shorter amount of time were all more likely to leave our organization. 
+
+These results found in our analysis were very significant to our study and have led our team to discuss possible recommendations for the organization. The first recommendation for our company based on our results is to request our accounting department to focus our salary budget resources towards people making less money annually. Secondly, we have concluded that since employees are company hopping, the recruiting department should try to avoid hiring people than have worked for more than three companies previously. Lastly, our organization must come up with an alternative strategy to retain employees that have been with the company for a short amount of time. By implementing these strategies in our company, I believe that our organization will be able to retain more valuable employees over time. 
+
+After discussing the recommendations for our organization, our team also came up with new questions about the future of our study and our organization. Are other variables such as PTO time, workspace, and building amenities another reason why employees are leaving our company? Also, would providing a hybrid schedule to those that have longer commute distances to work help retain the employees lost for that reason? Additional data to answer these questions may help support our conclusions on why employees keep leaving our organization. To answer such questions and learn more about employee behavior, I believe the future work of our human resources team should be guided towards doing extensive research on employee behavior in other companies to better grasp the factors that keep employees satisfied and efficient at our company.
+
+
+## 4.	Appendix/Appendices. 
+
+```{r results = "hide", fig.keep = "none"}
+
+employee_data <- employee_data %>% add_column(job_satisfaction3 = employee_data$job_satisfaction)
+employee_data[employee_data$job_satisfaction3 == "Low",]$job_satisfaction3 = "1"
+employee_data[employee_data$job_satisfaction3 == "Medium",]$job_satisfaction3 = "2"
+employee_data[employee_data$job_satisfaction3 == "High",]$job_satisfaction3 = "3"
+employee_data[employee_data$job_satisfaction3 == "Very High",]$job_satisfaction3 = "4"
+
+employee_data$job_satisfaction3 <- as.numeric(employee_data$job_satisfaction3)
+
+
+employee_data <- employee_data %>% add_column(performance_rating3 = employee_data$performance_rating)
+employee_data[employee_data$performance_rating3 == "Not Effective",]$performance_rating3 = "1"
+employee_data[employee_data$performance_rating3 == "Minimally Effective",]$performance_rating3 = "2"
+employee_data[employee_data$performance_rating3 == "Meets Expectations",]$performance_rating3 = "3"
+employee_data[employee_data$performance_rating3 == "Exceeds Expectations",]$performance_rating3 = "4"
+employee_data[employee_data$performance_rating3 == "Exceptional",]$performance_rating3 = "5"
+
+employee_data$performance_rating3 <- as.numeric(employee_data$performance_rating3)
+
+
+
+employee_data <- employee_data %>% add_column(business_travel3 = employee_data$business_travel)
+employee_data[employee_data$business_travel3 == "None",]$business_travel3 = "1"
+employee_data[employee_data$business_travel3 == "Rarely",]$business_travel3 = "2"
+employee_data[employee_data$business_travel3 == "Frequently",]$business_travel3 = "3"
+
+employee_data$business_travel3 <- as.numeric(employee_data$business_travel3)
+
+
+employee_data <- employee_data %>% add_column(job_level3 = employee_data$job_level)
+employee_data[employee_data$job_level3  == "Associate",]$job_level3  = "1"
+employee_data[employee_data$job_level3  == "Manager",]$job_level3  = "2"
+employee_data[employee_data$job_level3  == "Senior Manager",]$job_level3  = "3"
+employee_data[employee_data$job_level3  == "Vice President",]$job_level3  = "4"
+employee_data[employee_data$job_level3  == "Director",]$job_level3  = "5"
+
+employee_data$job_level3  <- as.numeric(employee_data$job_level3 )
+
+
+
+employee_data %>% group_by(left_company) %>%
+  summarise(n_employees = n(),
+  min_miles_from_home = min(miles_from_home),
+  avg_miles_from_home = mean(miles_from_home),
+  max_miles_from_home = max(miles_from_home),
+  sd_miles_from_home = sd(miles_from_home),
+  pct_less_15_miles = mean(miles_from_home <= 15))
+
+
+employee_data %>% group_by(left_company) %>%
+  summarise(n_employees = n(),
+  min_weekly_hours = min(weekly_hours),
+  avg_weekly_hours = mean(weekly_hours),
+  max_weekly_hours = max(weekly_hours),
+  sd_weekly_hours = sd(weekly_hours),
+  pct_less_55_hours = mean(weekly_hours <= 55))
+
+employee_data %>% group_by(left_company) %>%
+  summarise(n_employees = n(),
+  min_yrs_at_company = min(yrs_at_company),
+  avg_yrs_at_company = mean(yrs_at_company),
+  max_yrs_at_company = max(yrs_at_company),
+  sd_yrs_at_companys = sd(yrs_at_company),
+  pct_less_15_years = mean(yrs_at_company <= 20))
+
+employee_data %>% group_by(left_company) %>%
+  summarise(n_employees = n(),
+  min_yrs_since_promotion = min(yrs_since_promotion),
+  avg_yrs_since_promotion = mean(yrs_since_promotion),
+  max_yrs_since_promotion = max(yrs_since_promotion),
+  sd_yrs_since_promotion = sd(yrs_since_promotion),
+  pct_less_7_years = mean(yrs_since_promotion <= 7))
+
+employee_data %>% group_by(left_company) %>%
+  summarise(n_employees = n(),
+  min_previous_companies = min(previous_companies),
+  avg_previous_companies = mean(previous_companies),
+  max_previous_companies = max(previous_companies),
+  sd_previous_companies = sd(previous_companies),
+  pct_less_4_companies = mean(previous_companies <= 4))
+
+employee_data %>% group_by(left_company) %>%
+  summarise(n_employees = n(),
+  min_job_satisfaction = min(job_satisfaction3),
+  avg_job_satisfaction = mean(job_satisfaction3),
+  max_job_satisfaction = max(job_satisfaction3),
+  sd_job_satisfaction = sd(job_satisfaction3),
+  pct_less_medium_satisfaction = mean(job_satisfaction3 <= 2))
+
+employee_data %>% group_by(left_company) %>%
+  summarise(n_employees = n(),
+  min_performance_rating = min(performance_rating3),
+  avg_performance_rating = mean(performance_rating3),
+  max_performance_rating = max(performance_rating3),
+  sd_performance_rating = sd(performance_rating3),
+  pct_less_meets_expectations = mean(performance_rating3 <= 3))
+
+
+employee_data %>% group_by(left_company) %>%
+  summarise(n_employees = n(),
+  min_business_travel = min(business_travel3),
+  avg_business_travel = mean(business_travel3),
+  max_business_travel = max(business_travel3),
+  sd_business_travel = sd(business_travel3),
+  pct_less_rarely_travelling = mean(business_travel3 <= 2))
+
+
+employee_data %>% group_by(left_company) %>%
+  summarise(n_employees = n(),
+  min_job_level = min(job_level3),
+  avg_job_level = mean(job_level3),
+  max_job_level= max(job_level3),
+  sd_job_level = sd(job_level3),
+  pct_less_senior_manager = mean(job_level3 <= 3))
+
+
+
+#bar chart
+ggplot(data = employee_data, aes(x = job_satisfaction, fill = left_company)) +
+geom_bar(color = "white") +
+facet_wrap(~ left_company, nrow = 2) +
+labs(title = "Job Satisfaction by Status (Left the Company - Yes/No)",
+x = "Job Satisfaction Levels", y = "Number of Employees")
+
+
+
+#histogram
+ggplot(data = employee_data, aes(x = salary, fill = left_company)) +
+geom_histogram(aes(y = ..density..), color = "white", bins = 20) +
+facet_wrap(~ left_company, nrow = 2) +
+labs(title = "Employee Salary Distribution by Status (Left the Comapny - Yes/No)",
+x = "Salary (US Dollars)", y = "Proportion of Employees")
+
+ggplot(data = employee_data, aes(x = weekly_hours, fill = left_company)) +
+geom_histogram(aes(y = ..density..), color = "white", bins = 20) +
+facet_wrap(~ left_company, nrow = 2) +
+labs(title = "Weekly Hours Distribution by Status (Left the Comapny - Yes/No)",
+x = "Time (hours)", y = "Proportion of Employees")
+
+ggplot(data = employee_data, aes(x = miles_from_home, fill = left_company)) +
+geom_histogram(aes(y = ..density..), color = "white", bins = 20) +
+facet_wrap(~ left_company, nrow = 2) +
+labs(title = "Employee Commute Distance by Status (Left the Comapny - Yes/No)",
+x = "Distance (Miles)", y = "Proportion of Employees")
+
+
+
+#boxplot
+ggplot(employee_data, aes(x = previous_companies, fill = left_company)) +
+  geom_boxplot()+
+facet_wrap(~ left_company, nrow = 2)  +
+labs(title = "Previous Companies by Status (Left the Company - Yes/No)",
+x = "Number of Companies")
+
+ggplot(employee_data, aes(x = yrs_at_company, fill = left_company)) +
+  geom_boxplot()+
+facet_wrap(~ left_company, nrow = 2)  +
+labs(title = "Number of Years at Company by Status (Left the Company - Yes/No)",
+x = "Number of Years at Company")
+
+
+
+```
+
+
+--- End ---
