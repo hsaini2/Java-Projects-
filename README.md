@@ -26,3 +26,9 @@ Harshil's current projects
 "Mortgage" -  This program creates a credit assessment for the bank issuing mortgages. 
 
 "Weight2WayConverter" - Converts Kg to Lbs and vice versa 
+
+"Arithmetic" - This program calculates the sum, average, and product of three user-input integers 
+
+"TypingPractice" - This program is a typing test for 1 minute
+
+"ThreeDiceGame" - This program calculates the figurative outcome if a Dice were to roll randomly 100 times and calculates the amount of times the outcome would be divisible by 3 
