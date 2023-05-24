@@ -18,3 +18,11 @@ Harshil's current projects
 "BMICalculator" - This program calculate BMI value based on the user input weight and height
 
 "InitArray" - Initializing the elements of an array.
+
+"GradeConverter" - This program will convert a 100-scale score into a letter grade. 
+
+"UnitConversion" + " TempConvertTable" - Converts temperature units C and F
+
+"Mortgage" -  This program creates a credit assessment for the bank issuing mortgages. 
+
+"Weight2WayConverter" - Converts Kg to Lbs and vice versa 
