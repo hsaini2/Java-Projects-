@@ -11,7 +11,7 @@ Harshil's current projects
 
 "ComputeArea" - This program computes the area of circles in which the user gives the radius
 
-"AdditionQuiz" - This program helps a first grader practice additions. The program randomly generates two single-digit integers number1 and number2 and displays a question. After the student types the answer, the program displays a message to indicate whether the answer is true or false.
+"AdditionQuiz" + "SubtractionQuiz" - This program helps a first grader practice addition and subtraction. The program randomly generates two single-digit integers number1 and number2 and displays a question. After the student types the answer, the program displays a message to indicate whether the answer is true or false.
 
 "Comparison" - This program compares integers using if statements, relational operators and equality operators.
 
