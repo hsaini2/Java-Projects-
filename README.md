@@ -15,3 +15,4 @@ Harshil's current projects
 
 "Comparison" - This program compares integers using if statements, relational operators and equality operators.
 
+"BMICalculator" - This program calculate BMI value based on the user input weight and height
